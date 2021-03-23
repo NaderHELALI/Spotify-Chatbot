@@ -3,5 +3,11 @@
         "pageAccessToken": "EAADqMFYGZBMUBAFdqdjsDyVGtb3xpIJ9GpZBYlceJRW9A5zNIHZCgTiXOOoCx7C5pRSMabf6m691kt47inn48N7lZA9ZCstG5NoBrxKZAZAMvdl9mAZCtAEmsfSNxLFJQ2kL3iHtKk3ZCsZA2ZCNp8etTK6TtOzMgriHf2bji5Gw2udygZDZD",
         "verifyToken": "fb0be4f5de7bf3ad1e509f939559cfccf01b3a3e638bd9ceabcfeb1bdc5c20c6928d55dcb7684b00af69fe6c0c7ca6fae63473bdd10866d580739a9bfe7f0dca"
 
+    },
+    "Spotify": {
+        "clientId": "8d3054e1cf174dbc83fa54744238dd39",
+        "clientSecret": "3ceb7201b4674a3f980affc92723c003"
+
     }
+
 }

@@ -84,7 +84,7 @@ server.post('/', (request, response, data) => {
                     {
                         console.log(spotifyApi.getAccessToken())
                         if (spotifyApi.getAccessToken() == undefined) {
-                            FB.sendMessage("RESPONSE", userData.sender, "Bonjour, Merci de vous connecter à spotify grâce à ce lien pour utiliser ce ChatBot\nLien :https://4b9eb637f58f.ngrok.io//login");
+                            FB.sendMessage("RESPONSE", userData.sender, "Bonjour, Merci de vous connecter à spotify grâce à ce lien pour utiliser ce ChatBot\nLien :https://4b9eb637f58f.ngrok.io/login");
 
 
                         } else {

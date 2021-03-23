@@ -1,6 +1,6 @@
 var SpotifyWebApi = require('spotify-web-api-node');
 // credentials are optional
-
+const config = require('../config/development.json').Spotify;
 
 const scopes = [
     'ugc-image-upload',
@@ -25,8 +25,8 @@ const scopes = [
 ];
 
 var spotifyApi = new SpotifyWebApi({
-    clientId: '8d3054e1cf174dbc83fa54744238dd39',
-    clientSecret: '3ceb7201b4674a3f980affc92723c003',
+    clientId: config.clientId,
+    clientSecret: config.clientSecret,
     redirectUri: 'https://513812ed4bfb.ngrok.io/callback'
 });
 
