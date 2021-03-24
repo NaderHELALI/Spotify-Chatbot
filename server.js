@@ -5,20 +5,19 @@ const config = require('./config');
 const FBeamer = require('./fbeamer');
 var spotifyApi = require('./music/index').spotifyApi;
 var scopes = require('./music/index').scopes;
+const link = require('./config/development.json').lien
 const matcher = require('./matcher');
 const server = express();
 const PORT = process.env.PORT || 3000;
 const FB = new FBeamer(config.FB);
 
 /* Spotify Function API GESTION */
-function getMyData() {
-    (async() => {
-        const me = await spotifyApi.getMe();
-        // console.log(me.body);
-        return (me.body.id);
-    })().catch(e => {
-        console.error(e);
-    });
+//USER info
+
+async function getMyData() {
+    const me = await spotifyApi.getMe();
+    return me.body
+
 }
 
 
@@ -71,11 +70,9 @@ server.get('/callback', (req, res) => {
 server.get('/', (request, response) => FB.registerHook(request, response));
 server.listen(PORT, () => console.log(`FBeamer Bot Service running on Port ${PORT}`));
 server.post('/', bodyparser.json({ verify: FB.verifySignature.call(FB) }));
-server.post('/', (request, response, data) => {
+server.post('/', async(request, response, data) => {
     return FB.incoming(request, response, data => {
         const userData = FB.messageHandler(data);
-
-
         matcher(userData.content, data => {
             console.log(data.intent)
             switch (data.intent) {
@@ -84,21 +81,61 @@ server.post('/', (request, response, data) => {
                     {
                         console.log(spotifyApi.getAccessToken())
                         if (spotifyApi.getAccessToken() == undefined) {
-                            FB.sendMessage("RESPONSE", userData.sender, "Bonjour, Merci de vous connecter à spotify grâce à ce lien pour utiliser ce ChatBot\nLien :https://4b9eb637f58f.ngrok.io/login");
-
-
+                            FB.sendMessage("RESPONSE", userData.sender, `Bonjour, Merci de vous connecter à spotify grâce à ce lien pour utiliser ce ChatBot\nLien :${link}/login`);
                         } else {
-
-                            const data = getMyData()
-                            FB.sendMessage("RESPONSE", userData.sender, "Vous etes bien connecter ".concat(data))
-
+                            getMyData().then((user) => {
+                                console.log(user)
+                                FB.sendMessage("RESPONSE", userData.sender, "Vous etes bien connecter ".concat(user.display_name))
+                            })
                         }
-
                         break;
                     }
-                case 'CurrentWeather':
+                case 'Artist':
                     {
-                        FB.sendMessage("RESPONSE", userData.sender, "yes");
+                        if (spotifyApi.getAccessToken() == undefined) {
+
+                            FB.sendMessage("RESPONSE", userData.sender, `Bonjour, Merci de vous connecter à spotify grâce à ce lien pour utiliser ce ChatBot\nLien :${link}/login`);
+                        } else {
+
+                            const artist = data.entities.groups.artist
+                            console.log(artist)
+                            spotifyApi.searchTracks(`artist:${artist}`)
+                                .then(function(data) {
+                                    var num = Math.floor(Math.random() * 20) + 1;
+                                    console.log('Found playlists are', data.body.tracks.items[num]);
+                                    const nametrack = data.body.tracks.items[num].album.name
+                                    const urltrack = data.body.tracks.items[num].album.external_urls.spotify
+                                    FB.sendMessage("RESPONSE", userData.sender, `Parfait, nous vous conseillons donc cette musique  ${nametrack} de ${artist}\nVoici donc le lien : ${urltrack}`)
+
+
+
+                                    console.log('Search tracks by "Love" in the artist name', data.body.tracks.items[0]);
+
+                                }, function(err) {
+                                    console.log('Something went wrong!', err);
+                                });
+                        }
+                    }
+                case 'Genre':
+                    {
+                        if (spotifyApi.getAccessToken() == undefined) {
+
+                            FB.sendMessage("RESPONSE", userData.sender, `Bonjour, Merci de vous connecter à spotify grâce à ce lien pour utiliser ce ChatBot\nLien :${link}/login`);
+                        } else {
+                            const genre = data.entities.groups.genre
+                            console.log(genre)
+                            spotifyApi.searchPlaylists(genre)
+                                .then(function(data) {
+                                        var num = Math.floor(Math.random() * 20) + 1;
+                                        console.log('Found playlists are', data.body.playlists.items[num]);
+                                        const nameplaylist = data.body.playlists.items[num].name
+                                        const urlplaylist = data.body.playlists.items[num].external_urls.spotify
+                                        FB.sendMessage("RESPONSE", userData.sender, `Parfait, nous vous conseillons donc cette playlist ${nameplaylist}\nVoici donc le lien : ${urlplaylist}`)
+                                    },
+                                    function(err) {
+                                        console.log('Something went wrong!', err);
+                                    });
+                        }
                         break;
                     }
                 case 'Exit':
@@ -108,6 +145,8 @@ server.post('/', (request, response, data) => {
                     }
                 default:
                     {
+
+
                         FB.sendMessage("RESPONSE", userData.sender, "Veuillez réessayer!");
                     }
             }
